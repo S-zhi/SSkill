@@ -1,0 +1,4 @@
+cozepy
+python-dotenv
+markdown
+weasyprint

@@ -1,0 +1,141 @@
+/* 认知报告样式：紧凑、克制、适合每日速读（1~2 页 A4） */
+
+@page {
+  size: A4;
+  margin: 14mm 15mm 12mm 15mm;
+}
+
+:root {
+  --ink: #1a1a1a;
+  --muted: #6b7280;
+  --line: #e5e7eb;
+  --accent: #2563eb;
+  --tag-bg: #eef2ff;
+  --tag-ink: #4338ca;
+  --quote-bar: #d1d5db;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: "Noto Sans CJK SC", "Noto Sans CJK JP", sans-serif;
+  color: var(--ink);
+  font-size: 10.5px;
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* 标题 */
+h1 {
+  font-size: 17px;
+  font-weight: 700;
+  margin: 0 0 2px 0;
+  letter-spacing: 0.2px;
+}
+h1 + p, h1 + blockquote { margin-top: 4px; }
+
+h2 {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 13px 0 5px 0;
+  padding-bottom: 3px;
+  border-bottom: 1.5px solid var(--ink);
+}
+
+h3 {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  margin: 9px 0 3px 0;
+}
+
+p { margin: 3px 0; }
+ul, ol { margin: 3px 0 3px 0; padding-left: 18px; }
+li { margin: 1.5px 0; }
+strong { font-weight: 700; }
+
+/* 中心思想 / 名言引用 */
+blockquote {
+  margin: 5px 0;
+  padding: 4px 10px;
+  border-left: 3px solid var(--quote-bar);
+  color: var(--ink);
+  background: #fafafa;
+  font-family: "Noto Serif CJK SC", serif;
+}
+blockquote p { margin: 2px 0; }
+
+/* 精华摘录：仿 serif，突出原文质感 */
+.excerpt {
+  font-family: "Noto Serif CJK SC", serif;
+  background: #fbfbfa;
+  border-left: 3px solid var(--accent);
+  padding: 5px 10px;
+  margin: 5px 0;
+  color: #333;
+}
+
+/* 分区标签 */
+.tag {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--tag-ink);
+  background: var(--tag-bg);
+  border-radius: 3px;
+  padding: 1px 6px;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+/* 表格（可用于要点/分区一览） */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 5px 0;
+  font-size: 10px;
+}
+th, td {
+  border: 1px solid var(--line);
+  padding: 3px 6px;
+  text-align: left;
+  vertical-align: top;
+}
+th { background: #f3f4f6; font-weight: 700; }
+
+/* 评级小方块：认同 / 不认同（打印后手动打勾） */
+.rating {
+  margin: 8px 0 2px 0;
+  padding: 6px 10px;
+  border: 1px dashed var(--muted);
+  border-radius: 4px;
+  font-size: 10px;
+}
+.rating .rating-title { font-weight: 700; margin-right: 10px; }
+.rating .box {
+  display: inline-block;
+  margin-right: 16px;
+}
+.rating .box .checkbox {
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+  border: 1.5px solid var(--ink);
+  border-radius: 2px;
+  margin-right: 5px;
+  vertical-align: -1px;
+}
+
+/* 批判区块 */
+.critique {
+  background: #fff7ed;
+  border-left: 3px solid #f59e0b;
+  padding: 4px 10px;
+  margin: 5px 0;
+  font-size: 10px;
+}
+
+hr { border: none; border-top: 1px solid var(--line); margin: 8px 0; }
+
+.meta { color: var(--muted); font-size: 9px; margin-top: 1px; }
