@@ -1,6 +1,6 @@
 ---
 name: github-issue-solver
-description: 自动检索并批量解决 GitHub 仓库的 Open Issue（当前仓库或用户指定的仓库）。每批默认处理 3 个、最多 5 个，从编号最小的、且 assignees 为空的 Open Issue 里挑；对每个 issue 建一个绑定到该 issue 的 ai-feat- 分支（连字符、不带斜杠）、定位相关代码（优先用 GitNexus 加速）、分阶段修改并写测试验证；全部验证通过后再自我 assign、打上 AISolved 标签、附一条 200~1000 字、分模块/函数维度讲清改动的方案评论并请求 owner review。不发起 PR、不关闭 issue。全程用 gh CLI 操作、绝不碰本地密钥，未登录时引导用户 gh auth login；开工前先做前置条件校验（git/gh 必需、node/jq 可选，缺失时按同目录 INSTALL.md 的跨平台安装指引处理，安装前先确认）和命令行参数解析，支持 `--repo owner/repo` 指定目标仓库、`--issue 12,15` 指定要处理的 issue 编号、`--skip` 跳过除 gh 登录外的所有确认点，三者均可选；全程每切换子步骤都输出 `[第几步/共4步]` 进度提示。当用户说"帮我处理一下这个仓库的 issue""解决几个 issue""自动修一批 bug""看看有哪些 issue 能修""处理 issue #12 #15"或给出一个 GitHub 仓库希望自动分诊+修复时，就应主动使用本 Skill——即使没有明说"用 Skill"也要触发。Use this whenever the user wants to automatically triage and fix GitHub issues in a repo, resolve a batch of issues, or work through the open-issue backlog with branches, tests, labels and review requests.
+description: 自动分诊并批量修复 GitHub 仓库的 Open Issue（默认每批 3 个、上限 5）：逐个理解 issue → 定位代码（优先 GitNexus）→ 建 ai-feat- linked branch → 修改并写测试，全过后打 AISolved 标签、写方案评论请 owner review；不开 PR、不关闭 issue，全程只用 gh CLI、未登录会引导登录。支持 `--repo`/`--issue`/`--skip` 参数、前置工具自检（git/gh/node/jq）和分步进度提示。当用户说"处理这个仓库的 issue""解决几个 issue""自动修一批 bug""处理 issue #12 #15"等，或给出仓库希望自动分诊修复时应主动触发。Use for automated GitHub issue triage-and-fix workflows.
 ---
 
 # GitHub Issue Solver（自动分诊 + 修复 Open Issue）
