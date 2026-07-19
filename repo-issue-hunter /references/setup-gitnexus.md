@@ -45,7 +45,7 @@ gitnexus list      # 已索引的全部仓库
 ```
 建图成功后，别忘了在本 Skill 里写复用标记：
 ```bash
-python <skill>/scripts/check_graph.py --mark
+python3 <skill>/scripts/check_graph.py --mark
 ```
 
 ---
@@ -67,7 +67,7 @@ claude mcp add gitnexus -- npx -y gitnexus@latest mcp
 claude mcp add gitnexus -- cmd /c npx -y gitnexus@latest mcp
 ```
 
-> ⚠️ `gitnexus setup` / `claude mcp add` 会写入全局或编辑器配置，属于会留下持久改动的操作，**执行前先向用户确认**。
+> ⚠️ `gitnexus setup` / `claude mcp add` 会写入全局或编辑器配置，属于会留下持久改动的操作，**执行前先向用户确认**（Skill 调用时若带了 `--skip` 参数则跳过这次确认，直接配置）。
 
 ---
 

@@ -84,8 +84,71 @@ Case 要具体、可操作，最好贴合读者的实际（如工程实践、职
 ## 篇幅与排版纪律
 
 - 成品 **1~2 页**。若内容超长，优先压缩第二部分摘录数量、第四部分 Case 数量，保住第一、三部分。
+  **压缩有下限**——压到 1 页需要牺牲字号/行距/边距才能塞下时，**不要压**，直接让它自然流到第 2 页（详见下面「PDF 渲染纪律」第 4 条）。1~2 页是硬约束的上限，不是必须凑够/挤进 1 页的下限。
 - 少用装饰，多用信息密度。标签、表格、引用块、excerpt/critique/rating 这些结构化元素是主要视觉锚点。
 - 顶部第一行是 `# 标题`，其下可用 `<p class="meta">来源 / 日期</p>` 放元信息。
+
+---
+
+## PDF 渲染纪律（写完 Markdown、转 PDF 前后都要遵守）
+
+这一节是 2026-07 那次"引用框/ASR 框/批判框互相覆盖"事故之后补的硬规则。事故根因：单页压缩、临时手改 CSS/临时换渲染器、文本框间距给得太紧，三件事叠在一起，导致后续内容的正文被前一个区块盖住。以下规则 + `scripts/verify_pdf.py` 的自动检查，是防止这类问题重现的双保险——**规则负责不引入问题，脚本负责万一引入了也拦得住**。
+
+### 1. 只用流式容器，不用固定尺寸/绝对定位
+
+`references/../assets/report.css` 里 `.excerpt` / `.critique` / `.rating` / `blockquote` / 表格 都是普通的流式盒子：高度随内容自动撑开，用 `margin`/`padding`/`border` 控制外观。**生成报告时不要给这些元素加任何内联 `style`**，尤其是：
+
+- **禁止 `height` / `max-height` 配 `overflow:hidden`**——内容一多就会被截断、压扁，后面的文字会被截断处剩下的空间"挤"到当前区块头上，制造覆盖。
+- **禁止负 `margin`**（如 `margin-top:-15px`）——这是最直接的"把下一块内容往上拉，压到上一块内容"的操作，2026-07 那次事故就是这么触发的。
+- **禁止 `position: absolute` / `position: fixed`**——这两个会让元素脱离正常文档流，不再参与自动分页和自动避让，极易和周围内容重叠。
+
+### 2. 不临时切换渲染器
+
+PDF 渲染器固定为 **WeasyPrint**（`scripts/build_pdf.py` 已写死），版本锁定见 `requirements.txt`（`weasyprint==69.0` 配 `pydyf==0.12.1`，这两个必须配对升级，见 `requirements.txt` 里的注释——单独升级 weasyprint 可能配到不兼容的新版 pydyf，直接在写 PDF 阶段报错）。不要为了"看起来快一点/绕过某个报错"临时改用别的 HTML→PDF 工具（wkhtmltopdf、Chromium headless 等）——不同渲染器的分页算法、字体度量、CSS 支持程度都不一样，会让这里定的字号/行距/避免跨页断裂的规则全部失效。真遇到 WeasyPrint 报错，先按 `requirements.txt` 重装依赖、跑 `scripts/env_report.py` 排查版本/字体问题，而不是换工具。
+
+### 3. 正文字号与行距的硬下限
+
+- **正文字号 ≥ 9.5pt**，`assets/report.css` 已把所有正文相关元素（含标签、表格、meta）的 `font-size` 定在 `9.5pt`（要点/摘录用 `10pt`），**别在生成报告时手动调小**来塞更多内容。
+- **行距 ≥ 字号的 1.45 倍**，CSS 里 `body { line-height: 1.5 }` 已经留了余量，别覆盖这个值。
+- 这两条不是"建议"，是 `scripts/verify_pdf.py` 会真的拿 pdfplumber 读取渲染后 PDF 里每个字符的实际字号/相邻行间距去校验的硬指标，不达标直接判 FAIL。
+
+### 4. 内容密度过高就用两页，不许为了单页继续压缩
+
+判断顺序：先按 `references/report-spec.md` 前面几节的篇幅建议写（摘录 1~3 段、Case 2~3 个/方向），跑一遍 `scripts/build_pdf.py` 生成 PDF。
+
+- 页数落在 1~2 页 → 正常，继续走质检。
+- **超过 2 页** → 回去精简内容（砍摘录数量、砍 Case 数量），不是砍字号/砍行距/砍边距。
+- **卡在 1 页边缘、内容明显有点挤** → 让它自然流到第 2 页就行，**不要**通过缩小字号/压紧行距/减小 padding 硬塞进 1 页。两页且排版舒展，好过一页但字挤得要重叠。
+
+### 5. 交付前必须全过的检查闸门
+
+写完 `report.md`、转出 `report.pdf` 后，**按顺序**跑完下面三关，任一关不过就不能交付，回去改 `report.md`（内容）或反馈 CSS 问题（不要自己手改 CSS 应急）：
+
+1. **结构 + 版面自动检查**（pypdf + pdfplumber，脚本已经把两者包在一起）：
+   ```bash
+   python3 scripts/verify_pdf.py report.pdf --md report.md --json report_verify.json
+   ```
+   验收线：`page_count` 在 1~2、`overlap=0`、`out_of_page=0`、`empty_pages=[]`、`asr_excerpts_missing=0`、字号/行距不出现 fail 项。退出码非 0 就是没过。
+
+2. **整页视觉渲染核查**（pdftoppm 出图 + 人工肉眼看）：
+   ```bash
+   python3 scripts/render_pages.py report.pdf --outdir render
+   ```
+   然后**逐张**用 Read 工具打开 `render/page-*.png`，核查这几类脚本很难可靠判定、但一眼能看出的问题：文字/区块互相覆盖、内容被裁切、异常黑块、中文变成方块/乱码、表格被硬生生断成两半。任何一张有问题都不能交付。
+
+3. **环境记录**（可选但推荐，出问题时用于复现）：
+   ```bash
+   python3 scripts/env_report.py --append-log .report-env.log
+   ```
+   记录本次用的渲染器/依赖版本和字体探测结果；`version_drift` 非空或字体缺失时，先处理环境问题再继续。
+
+改了 `assets/report.css` 或本文件的排版规则之后，**先跑一遍回归测试**，全绿才能把改动用到真实报告上：
+
+```bash
+python3 scripts/run_regression.py
+```
+
+它会拿 `tests/fixtures/` 下 5 个样例（文本较短、文本较长、长链接、连续英文、两页分页）各跑一遍构建 + 质检，覆盖排版最容易出问题的几类场景。
 
 ---
 

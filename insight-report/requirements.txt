@@ -1,4 +1,13 @@
 cozepy
 python-dotenv
-markdown
-weasyprint
+
+# PDF 渲染链路：版本锁死，不随意升级（尤其 weasyprint/pydyf 要配对升级，见
+# references/report-spec.md 的「PDF 渲染纪律」一节 —— 曾经出现过 weasyprint 能装、
+# 但配到不兼容的新版 pydyf 导致渲染在写 PDF 阶段直接报错的情况）。
+markdown==3.7
+weasyprint==69.0
+pydyf==0.12.1
+
+# PDF 质检链路（scripts/verify_pdf.py 用）
+pdfplumber==0.11.4
+pypdf==5.1.0

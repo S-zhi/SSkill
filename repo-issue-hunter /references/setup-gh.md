@@ -84,5 +84,5 @@ curl -sS -H "Authorization: Bearer $GITHUB_TOKEN" https://api.github.com/user | 
 
 ## 安全须知
 - **token 只放进环境变量**，绝不写进代码、issue 正文、`.ci` 记录或 URL 参数。
-- 建 issue 前仍要走 Phase 5 的 `--dry-run` + 用户确认，不因鉴权就绪就自动批量建单。
+- 建 issue 前仍要走 Phase 5 的 `--dry-run`；用户确认这一步默认要等，除非 Skill 调用时带了 `--skip`——但即便如此，鉴权本身（本文件要解决的事）永远是硬性前提，不因 `--skip` 而免除。
 - 若两条都不方便配，把 issue 内容直接交给用户，让其在网页手动创建。
